@@ -1,0 +1,19 @@
+{
+    "name": "erlangparasu/jenkins-trigger-build-websocket-client",
+    "type": "project",
+    "require-dev": {},
+    "autoload": {
+        "psr-4": {
+            "Erlangparasu\\JenkinsTriggerBuildWebsocketClient\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Erlang Parasu",
+            "email": "erlangparasu@gmail.com"
+        }
+    ],
+    "require": {
+        "ratchet/pawl": "^0.3.5"
+    }
+}
