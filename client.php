@@ -57,7 +57,7 @@ function _send_ack(array $data)
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
-            'body' => $data,
+            'body' => json_encode($data),
         ]);
 
         $statusCode = $response->getStatusCode();
