@@ -1,7 +1,6 @@
 {
     "name": "erlangparasu/jenkins-trigger-build-websocket-client",
     "type": "project",
-    "require-dev": {},
     "autoload": {
         "psr-4": {
             "Erlangparasu\\JenkinsTriggerBuildWebsocketClient\\": "src/"
@@ -14,6 +13,7 @@
         }
     ],
     "require": {
-        "ratchet/pawl": "^0.3.5"
+        "ratchet/pawl": "^0.3.5",
+        "symfony/http-client": "^5.3"
     }
 }
