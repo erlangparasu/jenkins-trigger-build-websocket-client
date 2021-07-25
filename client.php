@@ -32,11 +32,16 @@ function _event($evt)
         $TOKEN_NAME = $config['TOKEN_NAME'];
 
         if ($config['enabled']) {
-            exec('curl ' . $JENKINS_URL . '/job/' . $JOB_NAME . '/build \
-            --user ' . $USER . ':' . $TOKEN . ' \
-            --data token=' . $TOKEN_NAME . '', $output);
+            try {
+                exec('curl ' . $JENKINS_URL . '/job/' . $JOB_NAME . '/build \
+                --user ' . $USER . ':' . $TOKEN . ' \
+                --data token=' . $TOKEN_NAME . '', $output);
 
-            print_r($output);
+                print_r($output);
+                echo 'try exec done.';
+            } catch (\Throwable $th) {
+                echo 'ERR: catch: ' . $th->getMessage();
+            }
         }
     }
 }
