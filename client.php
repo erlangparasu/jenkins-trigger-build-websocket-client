@@ -50,25 +50,30 @@ function _send_ack(array $data)
 {
     echo '_send_ack_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
 
-    $client = HttpClient::create();
-    $response = $client->request('POST', _conf()['http_ack_url'], [
-        'headers' => [
-            'Content-Type' => 'application/json',
-        ],
-        'body' => $data,
-    ]);
+    $content = '';
+    try {
+        $client = HttpClient::create();
+        $response = $client->request('POST', _conf()['http_ack_url'], [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'body' => $data,
+        ]);
 
-    $statusCode = $response->getStatusCode();
-    // $statusCode = 200
+        $statusCode = $response->getStatusCode();
+        // $statusCode = 200
 
-    $contentType = $response->getHeaders()['content-type'][0];
-    // $contentType = 'application/json'
+        $contentType = $response->getHeaders()['content-type'][0];
+        // $contentType = 'application/json'
 
-    $content = $response->getContent();
-    // $content = '{"id":521583, "name":"symfony-docs", ...}'
+        $content = $response->getContent();
+        // $content = '{"id":521583, "name":"symfony-docs", ...}'
 
-    // $content = $response->toArray();
-    // // $content = ['id' => 521583, 'nam
+        // $content = $response->toArray();
+        // // $content = ['id' => 521583, 'nam
+    } catch (\Throwable $th) {
+        echo 'ERR: catch: ' . $th->getMessage();
+    }
 
     return $content;
 }
@@ -101,7 +106,7 @@ function _main()
                     }
                 }
             } catch (\Throwable $th) {
-                //throw $th;
+                echo 'ERR: catch: ' . $th->getMessage();
             }
         });
 
