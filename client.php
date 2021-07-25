@@ -54,10 +54,11 @@ function _send_ack(array $data)
     try {
         $client = HttpClient::create();
         $response = $client->request('POST', _conf()['http_ack_url'], [
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
-            'body' => json_encode($data),
+            // 'headers' => [
+            //     'Content-Type' => 'application/json',
+            // ],
+
+            'json' => $data,
         ]);
 
         $statusCode = $response->getStatusCode();
