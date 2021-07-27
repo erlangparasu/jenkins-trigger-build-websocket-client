@@ -96,7 +96,7 @@ function _main()
         });
 
         $conn->on('pong', function ($frame, $ws) {
-            echo 'pong_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            // echo 'pong_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
         });
 
         $conn->on('error', function ($error, $ws) {
@@ -128,7 +128,7 @@ function _main()
         });
 
         $loop->addPeriodicTimer(30, function () use ($conn) {
-            echo 'periodic_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            // echo 'periodic_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
             $conn->send(new Frame('', true, Frame::OP_PING));
             // $conn->send('~');
         });
