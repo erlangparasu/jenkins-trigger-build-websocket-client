@@ -87,10 +87,26 @@ function _main()
     \Ratchet\Client\connect($base_conf['ws_url'], [], [], $loop)->then(function ($conn) use ($loop) {
         echo 'connect_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
 
-        $conn->on('message', function ($message) use ($conn) {
-            echo 'message_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
-            echo "received: {$message}\n";
+        $conn->on('close', function ($code, $reason, $ws) {
+            echo 'close_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+        });
 
+        $conn->on('ping', function ($frame, $ws) {
+            echo 'ping_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+        });
+
+        $conn->on('pong', function ($frame, $ws) {
+            echo 'pong_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+        });
+
+        $conn->on('error', function ($error, $ws) {
+            echo 'error_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+        });
+
+        $conn->on('message', function ($message, $self) use ($conn) {
+            echo 'message_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+
+            echo "received: {$message}\n";
             try {
                 $object = json_decode($message);
                 if (isset($object)) {
@@ -126,7 +142,6 @@ function _main()
     });
 
     echo 'run_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
-    $loop->run();
 }
 
 _main();
