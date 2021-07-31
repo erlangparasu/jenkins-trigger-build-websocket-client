@@ -33,14 +33,23 @@ function _event($evt)
 
         if ($config['enabled']) {
             try {
-                exec('curl ' . $JENKINS_URL . '/job/' . $JOB_NAME . '/build \
+                $final_cmd = 'curl ' . $JENKINS_URL . '/job/' . $JOB_NAME . '/build \
                 --user ' . $USER . ':' . $TOKEN . ' \
-                --data token=' . $TOKEN_NAME . '', $output);
+                --data token=' . $TOKEN_NAME . '';
+
+                var_dump($final_cmd);
+                echo PHP_EOL;
+
+                exec($final_cmd, $output);
 
                 print_r($output);
+                echo PHP_EOL;
+
                 echo 'try exec done.';
+                echo PHP_EOL;
             } catch (\Throwable $th) {
                 echo 'ERR: catch: ' . $th->getMessage();
+                echo PHP_EOL;
             }
         }
     }
