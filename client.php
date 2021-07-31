@@ -60,15 +60,19 @@ function _send_ack(array $data)
 
             'json' => $data,
         ]);
+        // echo 'AAAA' . PHP_EOL;
 
         $statusCode = $response->getStatusCode();
         // $statusCode = 200
+        // echo 'BBBB' . $statusCode . PHP_EOL;
 
-        $contentType = $response->getHeaders()['content-type'][0];
+        $contentType = $response->getHeaders(false)['content-type'][0];
         // $contentType = 'application/json'
+        // echo 'CCCC' . $contentType . PHP_EOL;
 
-        $content = $response->getContent();
+        $content = $response->getContent(false);
         // $content = '{"id":521583, "name":"symfony-docs", ...}'
+        // echo 'DDDD' . $content . PHP_EOL;
 
         // $content = $response->toArray();
         // // $content = ['id' => 521583, 'nam
@@ -112,13 +116,15 @@ function _main()
                 if (isset($object)) {
                     if (isset($object->msg)) {
                         $json_msg = $object->msg;
+
                         $msg = json_decode($json_msg);
-                        if (isset($msg->id) && isset($msg->t)) {
-                            _event($msg->t);
+                        if (isset($msg->id) && isset($msg->data) && isset($msg->data->header_token)) {
+                            _event($msg->data->header_token);
                             echo 'done_event_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
 
-                            _send_ack(['id' => $msg->id]);
+                            $response = _send_ack(['id' => $msg->id]);
                             echo 'done_send_ack_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+                            echo '  response: --->' . $response . '<---' . PHP_EOL;
                         }
                     }
                 }
