@@ -100,8 +100,9 @@ function _main()
     \Ratchet\Client\connect($base_conf['ws_url'], [], [], $loop)->then(function ($conn) use ($loop) {
         echo 'connect_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
 
-        $conn->on('close', function ($code, $reason, $ws) {
+        $conn->on('close', function ($code, $reason, $ws) use ($loop) {
             echo 'close_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            $loop->stop();
         });
 
         $conn->on('ping', function ($frame, $ws) {
@@ -112,8 +113,9 @@ function _main()
             // echo 'pong_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
         });
 
-        $conn->on('error', function ($error, $ws) {
+        $conn->on('error', function ($error, $ws) use ($loop) {
             echo 'error_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            $loop->stop();
         });
 
         $conn->on('message', function ($message, $self) use ($conn) {
@@ -151,9 +153,10 @@ function _main()
         $conn->send(json_encode([
             'data' => 'hello-from-' . _conf()['app_name'],
         ]));
-    }, function ($e) {
+    }, function ($e) use ($loop) {
         echo 'error_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
         echo "could not connect: {$e->getMessage()}\n";
+        $loop->stop();
     });
 
     echo 'run_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
