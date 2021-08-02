@@ -12,6 +12,11 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/env.php';
 require __DIR__ . '/conf.php';
 
+function _logger($msg)
+{
+    echo '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL;
+}
+
 function _jenkins_configs()
 {
     return _env();
@@ -19,7 +24,7 @@ function _jenkins_configs()
 
 function _event($evt)
 {
-    echo '_event_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+    _logger('_event:');
 
     $configs = _jenkins_configs();
     if (isset($configs[$evt])) {
@@ -45,11 +50,9 @@ function _event($evt)
                 print_r($output);
                 echo PHP_EOL;
 
-                echo 'try exec done.';
-                echo PHP_EOL;
+                _logger('try exec done.');
             } catch (\Throwable $th) {
-                echo 'ERR: catch: ' . $th->getMessage();
-                echo PHP_EOL;
+                _logger('ERR: catch: ' . $th->getMessage());
             }
         }
     }
@@ -57,7 +60,7 @@ function _event($evt)
 
 function _send_ack(array $data)
 {
-    echo '_send_ack_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+    _logger('_send_ack:');
 
     $content = '';
     try {
@@ -86,7 +89,7 @@ function _send_ack(array $data)
         // $content = $response->toArray();
         // // $content = ['id' => 521583, 'nam
     } catch (\Throwable $th) {
-        echo 'ERR: catch: ' . $th->getMessage();
+        _logger('ERR: catch: ' . $th->getMessage());
     }
 
     return $content;
@@ -94,34 +97,36 @@ function _send_ack(array $data)
 
 function _main()
 {
+    _logger('_main:');
+
     $base_conf = _conf();
 
     $loop = React\EventLoop\Loop::get();
     \Ratchet\Client\connect($base_conf['ws_url'], [], [], $loop)->then(function ($conn) use ($loop) {
-        echo 'connect_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+        _logger('on connect:');
 
         $conn->on('close', function ($code, $reason, $ws) use ($loop) {
-            echo 'close_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            _logger('on close:');
             $loop->stop();
         });
 
         $conn->on('ping', function ($frame, $ws) {
-            echo 'ping_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            _logger('on ping:');
         });
 
         $conn->on('pong', function ($frame, $ws) {
-            // echo 'pong_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            _logger('on pong:');
         });
 
         $conn->on('error', function ($error, $ws) use ($loop) {
-            echo 'error_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            _logger('on error:');
             $loop->stop();
         });
 
         $conn->on('message', function ($message, $self) use ($conn) {
-            echo 'message_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            _logger('on message:');
+            _logger("received: {$message}\n");
 
-            echo "received: {$message}\n";
             try {
                 $object = json_decode($message);
                 if (isset($object)) {
@@ -131,21 +136,21 @@ function _main()
                         $msg = json_decode($json_msg);
                         if (isset($msg->id) && isset($msg->data) && isset($msg->data->header_token)) {
                             _event($msg->data->header_token);
-                            echo 'done_event_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+                            _logger('_event done');
 
                             $response = _send_ack(['id' => $msg->id]);
-                            echo 'done_send_ack_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
-                            echo '  response: --->' . $response . '<---' . PHP_EOL;
+                            _logger('_send_ack done');
+                            _logger('  response: --->' . $response . '<---');
                         }
                     }
                 }
             } catch (\Throwable $th) {
-                echo 'ERR: catch: ' . $th->getMessage();
+                _logger('ERR: catch: ' . $th->getMessage());
             }
         });
 
         $loop->addPeriodicTimer(30, function () use ($conn) {
-            // echo 'periodic_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+            _logger('on periodic:');
             $conn->send(new Frame('', true, Frame::OP_PING));
             // $conn->send('~');
         });
@@ -153,13 +158,17 @@ function _main()
         $conn->send(json_encode([
             'data' => 'hello-from-' . _conf()['app_name'],
         ]));
+        _logger('conn sent:');
     }, function ($e) use ($loop) {
-        echo 'error_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
-        echo "could not connect: {$e->getMessage()}\n";
+        _logger('conn error:');
+        _logger("could not connect: {$e->getMessage()}\n");
         $loop->stop();
     });
 
-    echo 'run_at: ' . date('Y-m-d H:i:s') . PHP_EOL;
+    _logger('_main done');
 }
 
 _main();
+
+_logger('exit:');
+exit(0);
