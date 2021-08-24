@@ -1,0 +1,11 @@
+# nginx config example
+# Created by: Erlang Parasu erlangparasu 2021
+# ...
+location /wsapp/ {
+    proxy_pass http://127.0.0.1:8800;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+}
+# ...
